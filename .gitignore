@@ -1,0 +1,11 @@
+.DS_Store
+*.log
+*.pyc
+generated_code/
+data/
+Temp/
+.starflow/*
+!.starflow/config
+!.starflow/live_module_filters
+!.starflow/setupfunctions.py
+v1s_computed_data/

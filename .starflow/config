@@ -1,0 +1,12 @@
+
+#######################################
+## StarFlow Local Configuration File ##
+#######################################
+
+[local_systemwide]
+system_mode=EXPLORATORY
+protection=ON
+generated_code_dir=generated_code
+name=ecc
+gmail_account_name=dicarlo.research
+gmail_account_passwd=olracid.hcraeser
