@@ -109,6 +109,13 @@ from splits import generate_split, generate_multi_split
 
 def test_v1like_a_results_on_faces(depends_on = get_cert_paths('add_features','../v1/config/v1like_a.py',None) + ('../v1/config/v1like_a.py',), creates = '../faces_results/'):
     train_test('../v1/config/v1like_a.py','../faces_results/',{'type':'face'},30,80,N=30)
+
+def test_v1like_a_results_on_human_faces(depends_on = get_cert_paths('add_features','../v1/config/v1like_a.py',None) + ('../v1/config/v1like_a.py',), creates = '../human_faces_results/'):
+    train_test('../v1/config/v1like_a.py','../human_faces_results/',{'type':'face','subject':'human','mode':'photo'},20,60,N=15,universe={'$or':[{'type':'face','subject':'human','mode':'photo'},{'type':'object'}]})
+
+def test_v1like_a_results_on_human_faces_vs_familiar(depends_on = get_cert_paths('add_features','../v1/config/v1like_a.py',None) + ('../v1/config/v1like_a.py',), creates = '../human_faces_results_vs_familiar/'):
+    train_test('../v1/config/v1like_a.py',creates,{'type':'face','mode':'photo'},15,30,N=15,universe={'$or':[{'type':'face','mode':'photo'},{'type':'object','subject':'familiar'}]})
+
     
 def test_v1like_a_results_on_humans_vs_monkey_faces(depends_on = get_cert_paths('add_features','../v1/config/v1like_a.py',None) + ('../v1/config/v1like_a.py',), creates = '../humans_vs_monkey_faces_results/'):
     train_test('../v1/config/v1like_a.py',creates,{'subject':'human'},15,40,universe={'type':'face'})
