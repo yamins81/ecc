@@ -114,7 +114,11 @@ def test_v1like_a_results_on_human_faces(depends_on = get_cert_paths('add_featur
     train_test('../v1/config/v1like_a.py','../human_faces_results/',{'type':'face','subject':'human','mode':'photo'},20,60,N=15,universe={'$or':[{'type':'face','subject':'human','mode':'photo'},{'type':'object'}]})
 
 def test_v1like_a_results_on_human_faces_vs_familiar(depends_on = get_cert_paths('add_features','../v1/config/v1like_a.py',None) + ('../v1/config/v1like_a.py',), creates = '../human_faces_results_vs_familiar/'):
-    train_test('../v1/config/v1like_a.py',creates,{'type':'face','mode':'photo'},15,30,N=15,universe={'$or':[{'type':'face','mode':'photo'},{'type':'object','subject':'familiar'}]})
+    train_test('../v1/config/v1like_a.py',creates,{'subject':'human','mode':'photo'},25,10,ntrain_pos=13,N=10,universe={'$or':[{'subject':'human','mode':'photo'},{'type':'object','subject':'familiar'}]})
+
+
+def test_v1like_a_results_on_photo_vs_object(depends_on = get_cert_paths('add_features','../v1/config/v1like_a.py',None) + ('../v1/config/v1like_a.py',), creates = '../photo_vs_object/'):
+    train_test('../v1/config/v1like_a.py',creates,{'mode':'photo'},40,20,ntrain_pos=20,N=15,universe={'$or':[{'mode':'photo'},{'type':'object'}]})
 
     
 def test_v1like_a_results_on_humans_vs_monkey_faces(depends_on = get_cert_paths('add_features','../v1/config/v1like_a.py',None) + ('../v1/config/v1like_a.py',), creates = '../humans_vs_monkey_faces_results/'):
@@ -140,7 +144,7 @@ def test_v1like_a_results_on_faces_vs_humans(depends_on = get_cert_paths('add_fe
     train_test('../v1/config/v1like_a.py',creates,[{'type':'face'},{'type':'object','subject':'human'}],30,80)
    
 
-def train_test(config_path,outdir,query,ntrain,ntest,classifier = None,classifier_kwargs = {},N=10,universe=None):
+def train_test(config_path,outdir,query,ntrain,ntest,ntrain_pos = None,classifier = None,classifier_kwargs = {},N=10,universe=None):
     MakeDir(outdir)
 
     if isinstance(query,dict):
@@ -156,7 +160,7 @@ def train_test(config_path,outdir,query,ntrain,ntest,classifier = None,classifie
 
     for i in range(N):
         print(i)
-        split = splitter(config_path,'add_features',query,ntrain,ntest,universe=universe)
+        split = splitter(config_path,'add_features',query,ntrain,ntest,ntrain_pos = ntrain_pos, universe=universe)
         train_data = split['train_data']
         train_features = split['train_features']
         train_labels = split['train_labels']

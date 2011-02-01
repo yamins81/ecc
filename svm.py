@@ -1,4 +1,5 @@
 import scipy as sp
+import numpy as np
 from scikits.learn import svm
 from scikits.learn.linear_model.logistic import LogisticRegression
 
@@ -245,3 +246,31 @@ def __sphere(train_data, test_data):
 def max_predictor(weights,bias,labels):
     return lambda v : labels[(sp.dot(v,weights) + bias).argmax(1)]
 
+def liblinear_predictor(clas, bias, labels):
+    return lambda x : labels[liblinear_prediction_prediction_function(x,clas,labels)]
+
+def liblinear_prediction_function(farray , clas, labels):
+
+    if len(labels) > 2:
+        nf = farray.shape[0]
+        nlabels = len(labels)
+        
+        weights = clas.raw_coef_.ravel()
+        nw = len(weights)
+        nv = nw / nlabels
+        
+        D = np.column_stack([farray,np.array([.5]).repeat(nf)]).ravel().repeat(nlabels)
+        W = np.tile(weights,nf)
+        H = W * D
+        H1 = H.reshape((len(H)/nw,nv,nlabels))
+        H2 = H1.sum(1)
+        predict = H2.argmax(1)
+        
+        return predict
+    else:
+    
+        weights = clas.coef_.T
+        bias = clas.intercept_
+        
+        return (1 - np.sign(np.dot(farray,weights) + bias) )/2
+        

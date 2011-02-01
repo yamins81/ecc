@@ -7,7 +7,7 @@ import scipy as sp
 generate splits from the DB. 
 """
 
-def generate_split(config_path,tag,task_query,ntrain,ntest,universe = None):
+def generate_split(config_path,tag,task_query,ntrain,ntest,ntrain_pos = None, universe = None):
 
     if universe is None:
         universe = {}
@@ -23,18 +23,41 @@ def generate_split(config_path,tag,task_query,ntrain,ntest,universe = None):
     nontask_query.update(universe)
     nontask_data = list(data.find(nontask_query))
     N_nontask = len(nontask_data)
-    
-    all_data = task_data + nontask_data
          
     assert ntrain + ntest <= N_task + N_nontask, "Too many training and/or testing examples."
     
-    perm = sp.random.permutation(len(all_data))
+    if ntrain_pos is not None:
+        ntrain_neg = ntrain - ntrain_pos
+        assert ntrain_pos <= N_task
+        assert ntrain_pos <= ntrain
+        
+        perm_pos = sp.random.permutation(len(task_data))
+        perm_neg = sp.random.permutation(len(nontask_data))
+        
+        train_data = [task_data[i] for i in perm_pos[:ntrain_pos]] + [nontask_data[i] for i in perm_neg[:ntrain_neg]]
+        
+        all_test = [task_data[i] for i in perm_pos[ntrain_pos:]] + [nontask_data[i] for i in perm_neg[ntrain_neg:]]
+        
+        new_perm = sp.random.permutation(len(all_test))
+        
+        test_data = [all_test[i] for i in new_perm[:ntest]]
+        
+    
+    else:
+        
+        all_data = task_data + nontask_data
          
-    train_data = [all_data[i] for i in perm[:ntrain]]
-    test_data = [all_data[i] for i in perm[ntrain:ntrain + ntest]]
+        perm = sp.random.permutation(len(all_data))
+         
+        train_data = [all_data[i] for i in perm[:ntrain]]
+    
+        test_data = [all_data[i] for i in perm[ntrain:ntrain + ntest]]
+        
+    
     
     train_labels = sp.array([x['_id'] in task_ids for x in train_data])
     test_labels = sp.array([x['_id'] in task_ids for x in test_data])
+    
 
     train_features = sp.row_stack([cPickle.loads(data.fs.get(r['_id']).read()) for r in train_data])
     test_features = sp.row_stack([cPickle.loads(data.fs.get(r['_id']).read()) for r in test_data])
@@ -49,7 +72,7 @@ def validate(idseq):
     return ids
     
     
-def generate_multi_split(config_path,tag,queries,ntrain,ntest,universe = None):
+def generate_multi_split(config_path,tag,queries,ntrain,ntest,ntrain_pos = None, universe = None):
 
     if universe is None:
         universe = {}
